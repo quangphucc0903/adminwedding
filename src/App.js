@@ -54,7 +54,7 @@ function App() {
           }
         />
         <Route
-          path="/view-template/:templateId"
+          path="/view-template/:id"
           element={
             <DashboardLayoutv2>
               <PrivateRoute>

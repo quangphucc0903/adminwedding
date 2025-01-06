@@ -13,21 +13,19 @@ const Canvas = ({
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        padding: "80px 20px 60px 20px",
-        minHeight: "100vh",
-        backgroundColor: "#FCFCFC",
-        overflow: "auto"
+        // padding: 2,
+        width: "fit-content",
+        height: "fit-content",
+        backgroundColor: "#fff",
+        margin: "auto",
       }}
     >
       <Box
         sx={{
-          width: "800px",
-          height: "500px",
-          border: "1px solid #ddd",
+          width: "500px",
+          height: "800px",
           backgroundColor: "#fff",
+          margin: "auto",
         }}
       >
         {sections.map((section, index) => (

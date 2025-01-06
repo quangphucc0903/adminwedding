@@ -182,6 +182,8 @@ const Section = ({
         border: isHovered ? "2px solid #2196f3" : "1px dashed #ccc",
         padding: section.style.padding,
         marginBottom: section.style.marginBottom,
+        width: section.style.width,
+        height: section.style.height, 
         minWidth: section.style.minWidth,
         minHeight: section.style.minHeight,
         backgroundColor: section.style.backgroundColor,

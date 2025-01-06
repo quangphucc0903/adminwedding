@@ -8,6 +8,8 @@ import {
   DialogActions,
   TextField,
   DialogContent,
+  FormControl,
+  FormLabel,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
@@ -220,41 +222,65 @@ const SubscriptionPlans = () => {
               : "Edit Subscription Plan"}
           </DialogTitle>
           <DialogContent>
-            <TextField
-              margin="dense"
-              label="Name"
-              name="name"
-              value={editForm.name}
-              onChange={handleEditChange}
-              fullWidth
-            />
-            <TextField
-              margin="dense"
-              label="Description"
-              name="description"
-              value={editForm.description}
-              onChange={handleEditChange}
-              fullWidth
-            />
-            <TextField
-              margin="dense"
-              label="Price"
-              name="price"
-              type="number"
-              value={editForm.price}
-              onChange={handleEditChange}
-              fullWidth
-            />
-            <TextField
-              margin="dense"
-              label="Duration (months)"
-              name="duration"
-              type="number"
-              value={editForm.duration}
-              onChange={handleEditChange}
-              fullWidth
-            />
+            <FormControl fullWidth margin="dense">
+              <FormLabel htmlFor="name">Name</FormLabel>
+              <TextField
+                id="name"
+                name="name"
+                value={editForm.name}
+                onChange={handleEditChange}
+                placeholder="Enter name"
+                fullWidth
+                variant="outlined"
+                required
+              />
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <FormLabel htmlFor="description">Description</FormLabel>
+              <TextField
+                id="description"
+                name="description"
+                value={editForm.description}
+                onChange={handleEditChange}
+                placeholder="Enter description"
+                fullWidth
+                variant="outlined"
+                required
+              />
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <FormLabel htmlFor="price">Price</FormLabel>
+              <TextField
+                id="price"
+                name="price"
+                type="number"
+                value={editForm.price}
+                onChange={handleEditChange}
+                placeholder="Enter price"
+                fullWidth
+                variant="outlined"
+                required
+              />
+            </FormControl>
+
+            <FormControl fullWidth margin="dense">
+              <FormLabel htmlFor="duration">Duration (months)</FormLabel>
+              <TextField
+                id="duration"
+                name="duration"
+                type="number"
+                value={editForm.duration}
+                onChange={handleEditChange}
+                placeholder="Enter duration in months"
+                fullWidth
+                variant="outlined"
+                required
+              />
+            </FormControl>
           </DialogContent>
+
           <DialogActions>
             <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
             <Button onClick={handleEditSubmit} color="primary">

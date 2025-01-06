@@ -96,8 +96,6 @@ const ComponentItem = ({
       defaultPosition={{
         x: component.style.left,
         y: component.style.top,
-        width: component.style.width,
-        height: component.style.height,
       }}
       onStop={handleDragStop}
     >
@@ -192,7 +190,6 @@ const ComponentItem = ({
               variant="outlined"
               value={newText}
               onChange={(e) => setNewText(e.target.value)}
-              rows={4}
             />
           </DialogContent>
           <DialogActions>

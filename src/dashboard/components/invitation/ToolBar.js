@@ -19,7 +19,7 @@ const Toolbar = ({
   selectedComponent, // Current selected component
   handleTextChange, // Function to update text content
   handleFileUpload,
-  onDropdownChange,// Function to handle image uploads
+  onDropdownChange, // Function to handle image uploads
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -52,9 +52,7 @@ const Toolbar = ({
         backgroundColor: "#f9f9f9",
         display: "flex",
         flexDirection: "column",
-        height: "calc(100vh - 53px)",
         borderLeft: "1px solid #ddd",
-        marginTop: "53px",
         zIndex: 1,
       }}
     >
@@ -91,7 +89,7 @@ const Toolbar = ({
             <StyleEditor
               activeStyles={activeStyles}
               handleStyleChange={handleStyleChange}
-              selectedItem={selectedComponent?.id || ""} 
+              selectedItem={selectedComponent?.id || ""}
               onChange={onDropdownChange}
             />
           </Box>

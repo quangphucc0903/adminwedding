@@ -8,6 +8,7 @@ import { createTemplate, createSection } from "../service/templateService";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Headerv2 from "./template-components/Headerv2";
 import LayerList from "./template-components/LayerList";
+import "../css/font.css";
 
 const CreateTemplate = () => {
   const [sections, setSections] = useState([]);
@@ -128,7 +129,6 @@ const CreateTemplate = () => {
                     }
                   : component
               ),
-              style: { ...section.style, [key]: value },
             }
           : section
       )
@@ -170,7 +170,7 @@ const CreateTemplate = () => {
         width: "100%",
         minWidth: "800px",
         height: "100%",
-        padding: 2,
+        padding: 0,
         position: "relative",
         marginBottom: 2,
         minHeight: "500px",
@@ -228,23 +228,31 @@ const CreateTemplate = () => {
         }}
         onClick={handleCanvasClick}
       >
-        <Box
+        {/* <Box
           sx={{
-            position: "fixed",
+            position: "absolute",
             top: 0,
-            width: "87%",
+            width: "100%",
             zIndex: 1000,
             backgroundColor: "#FCFCFC",
+            boxSizing: "border-box",
           }}
         >
           <Headerv2 />
-        </Box>
+        </Box> */}
+        <Headerv2
+          sx={{
+            position: "absolute !important",
+            top: 0,
+            zIndex: 1000,
+          }}
+        />
         <Box
           sx={{
             display: "flex",
             height: "100%",
             overflow: "hidden",
-            flexDirection: "row", // Đảm bảo "row" để các phần tử nằm cạnh nhau
+            flexDirection: "row",
           }}
         >
           <LayerList

@@ -87,7 +87,6 @@ const LayerList = ({
 
   const handleDropdownChange = (sectionId, value) => {
     setSelectedSectionId(sectionId);
-    console.log(`Selected section ${sectionId} with value ${value}`);
     // Cập nhật giá trị responsive của section
     onUpdateSections((prevSections) =>
       prevSections.map((section) =>
@@ -99,12 +98,11 @@ const LayerList = ({
   return (
     <Box
       sx={{
-        width: "300px",
+        width: "250px",
         flexShrink: 0,
         backgroundColor: "#f5f5f5",
         borderRight: "1px solid #ddd",
         overflowY: "auto",
-        marginTop: "53px",
         padding: "10px",
         zIndex: 10,
         position: "relative",

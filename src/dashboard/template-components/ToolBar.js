@@ -18,6 +18,7 @@ const Toolbar = ({
   setTemplateData,
   selectedItem,
   onDropdownChange,
+  subscriptionPlan,
 }) => {
   const [tabIndex, setTabIndex] = useState(0);
   const [subscriptions, setSubscriptions] = useState([]);
@@ -50,9 +51,11 @@ const Toolbar = ({
   const handleInputChange = (field, value) => {
     setTemplateData((prevData) => ({
       ...prevData,
-      [field]: value,
+      [field]: field === "subscriptionPlanId" ? parseInt(value, 10) : value,
     }));
   };
+
+
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -71,9 +74,7 @@ const Toolbar = ({
         backgroundColor: "#f9f9f9",
         display: "flex",
         flexDirection: "column",
-        height: "calc(100vh - 53px)",
         borderLeft: "1px solid #ddd",
-        marginTop: "53px",
         zIndex: 1,
       }}
     >
@@ -135,18 +136,23 @@ const Toolbar = ({
               fullWidth
               select
               label="Subscription Plan"
-              value={templateData.subscriptionPlanId || ""}
+              value={templateData.subscriptionPlanId || ""} // Sử dụng subscriptionPlanId
               onChange={(e) =>
-                handleInputChange("subscriptionPlanId", e.target.value)
+                handleInputChange("subscriptionPlanId", e.target.value) // Lưu subscriptionPlanId
               }
               margin="normal"
             >
-              {subscriptions.map((subscription) => (
-                <MenuItem key={subscription.id} value={subscription.id}>
-                  {subscription.name}
-                </MenuItem>
-              ))}
+              {subscriptions.length > 0 ? (
+                subscriptions.map((subscription) => (
+                  <MenuItem key={subscription.id} value={subscription.id}>
+                    {subscription.name}
+                  </MenuItem>
+                ))
+              ) : (
+                <MenuItem disabled>No subscriptions available</MenuItem>
+              )}
             </TextField>
+
 
             {/* Trường upload ảnh thumbnail */}
             <Box sx={{ marginTop: "16px" }}>
@@ -158,7 +164,17 @@ const Toolbar = ({
               />
               {templateData.thumbnailUrl && (
                 <Box sx={{ marginTop: "8px" }}>
-                  {templateData.thumbnailUrl instanceof File ? (
+                  {typeof templateData.thumbnailUrl === "string" ? (
+                    <img
+                      src={templateData.thumbnailUrl}
+                      alt="Thumbnail"
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  ) : (
                     <img
                       src={URL.createObjectURL(templateData.thumbnailUrl)}
                       alt="Thumbnail"
@@ -168,11 +184,10 @@ const Toolbar = ({
                         objectFit: "cover",
                       }}
                     />
-                  ) : (
-                    <span>Invalid file</span>
                   )}
                 </Box>
               )}
+
             </Box>
           </Box>
         )}

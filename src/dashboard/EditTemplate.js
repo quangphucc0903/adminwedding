@@ -43,7 +43,13 @@ const EditTemplate = () => {
   const fetchTemplateData = async () => {
     try {
       const template = await getTemplateById(id);
-      setTemplateData(template.data);
+      console.log("Template", template);
+
+      setTemplateData({
+        ...template.data,
+        subscriptionPlanId: template.data.subscriptionPlan?.id || "", 
+      });
+
       setSections(
         template.data.sections
           .map((section) => ({
@@ -59,6 +65,7 @@ const EditTemplate = () => {
     }
   };
 
+
   useEffect(() => {
     fetchTemplateData();
   }, [id]);
@@ -68,15 +75,30 @@ const EditTemplate = () => {
   };
 
   const handleSaveTemplate = async () => {
-    setIsLoading(true); // Bật loading
+    setIsLoading(true); // Bật trạng thái loading
 
     try {
-      // Cập nhật template
+      // Lấy subscriptionPlanId và kiểm tra
+      const subscriptionPlanId = parseInt(templateData.subscriptionPlanId, 10);
+      if (isNaN(subscriptionPlanId)) {
+        showSnackbar("Please select a valid subscription plan.", "error");
+        setIsLoading(false);
+        return;
+      }
+
+      // Gửi API
       const saveTemplate = await updateTemplate(
         id,
-        templateData,
-        templateData.thumbnailUrl
+        {
+          name: templateData.name,
+          description: templateData.description,
+          subscriptionPlanId,
+          metaData: JSON.stringify(templateData.metaData), // Nếu metaData là object
+        },
+        templateData.thumbnailUrl instanceof File ? templateData.thumbnailUrl : null // Chỉ gửi file nếu có
       );
+
+      console.log("Save Template", saveTemplate);
 
       // Gửi từng section để cập nhật
       for (const section of sections) {
@@ -88,20 +110,22 @@ const EditTemplate = () => {
           },
         });
       }
-      console.log("Tempalte", saveTemplate);
 
       showSnackbar("Template updated successfully!", "success");
       setTimeout(() => navigate("/template"), 1000); // Chuyển hướng sau 1s
     } catch (error) {
       console.error("Error saving template:", error);
       showSnackbar(
-        error.response?.data?.message || "Failed to save template!",
+        error.message || "Failed to save template!",
         "error"
       );
     } finally {
-      setIsLoading(false); // Tắt loading
+      setIsLoading(false); // Tắt trạng thái loading
     }
   };
+
+
+
 
   const handleStyleChange = (key, value) => {
     if (!activeItem) return;
@@ -208,24 +232,28 @@ const EditTemplate = () => {
     <DndProvider backend={HTML5Backend}>
       <Box
         sx={{
+          width: "100%",
           display: "flex",
           flexDirection: "column",
           height: "100vh",
           backgroundColor: "#FCFCFC",
         }}
       >
+        <Headerv2
+          sx={{
+            position: "absolute !important",
+            top: 0,
+            zIndex: 1000,
+          }}
+        />
         <Box
           sx={{
-            position: "fixed",
-            top: 0,
-            width: "87%",
-            zIndex: 1000,
-            backgroundColor: "#FCFCFC",
+            display: "flex",
+            height: "100%",
+            overflow: "hidden",
+            flexDirection: "row",
           }}
         >
-          <Headerv2 />
-        </Box>
-        <Box sx={{ display: "flex", height: "100%", overflow: "hidden" }}>
           <LayerList sections={sections} onUpdateSections={setSections} />
           <Box
             id="canvas"
@@ -276,6 +304,7 @@ const EditTemplate = () => {
             setTemplateData={setTemplateData}
             selectedItem={selectedItem}
             onDropdownChange={handleDropdownChange}
+            subscriptionPlan={templateData.subscriptionPlan} 
           />
         </Box>
         <Box

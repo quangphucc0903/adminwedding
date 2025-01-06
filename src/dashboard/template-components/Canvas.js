@@ -9,6 +9,7 @@ const Canvas = ({
   setActiveStyles,
   activeItem,
   selectedItem,
+  isViewMode,
 }) => {
   return (
     <Box
@@ -30,6 +31,7 @@ const Canvas = ({
           activeItem={activeItem}
           setActiveStyles={setActiveStyles}
           selectedItem={selectedItem}
+          isViewMode={isViewMode}
         />
       ))}
     </Box>

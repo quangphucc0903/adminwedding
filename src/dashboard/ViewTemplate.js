@@ -1,273 +1,185 @@
-import React, { useEffect, useState } from "react";
-import { Typography, Box, Button, Grid } from "@mui/material";
-import { useParams, useNavigate } from "react-router-dom";
-import { getTemplateById } from "../service/templateService"; // Your service function
+import React, { useState, useEffect, useRef } from "react";
+import {
+  Box,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  Typography,
+} from "@mui/material";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import Canvas from "./template-components/Canvas";
+import Headerv2 from "./template-components/Headerv2";
+import { getTemplateById } from "../service/templateService";
+import { useParams } from "react-router-dom";
 
 const ViewTemplate = () => {
-  const { templateId } = useParams(); // Get templateId from URL
-  const [template, setTemplate] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const { id } = useParams();
+  const [sections, setSections] = useState([]);
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const isPanning = useRef(false);
+  const startPoint = useRef({ x: 0, y: 0 });
+  const [isLoading, setIsLoading] = useState(false);
+  const [templateData, setTemplateData] = useState({
+    name: "",
+    description: "",
+  });
 
-  useEffect(() => {
-    const fetchTemplate = async () => {
-      try {
-        const response = await getTemplateById(templateId);
-        setTemplate(response.data);
-      } catch (error) {
-        console.error("Error fetching template:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTemplate();
-  }, [templateId]);
-
-  const handleBack = () => {
-    navigate("/template"); // Navigate back to the template management page
-  };
-
-  // Function to render components dynamically based on metadata
-  const renderComponent = (component) => {
-    switch (component.type) {
-      case "text":
-        return (
-          <Box
-            key={component.id}
-            sx={{
-              position: "absolute",
-              left: component.style.left,
-              top: component.style.top,
-              fontSize: component.style.fontSize,
-              fontFamily: component.style.fontFamily,
-              width: component.style.width,
-              height: component.style.height,
-              color: component.style.color,
-              backgroundColor: component.style.fillColor,
-              "@media (max-width: 700px)": {
-                fontSize: "14px",
-                width: "90%",
-                left: "5%",
-              },
-            }}
-          >
-            <Typography variant={component.style.fontSize}>
-              {component.text || "No text provided"}
-            </Typography>
-          </Box>
-        );
-      case "circle":
-        return (
-          <Box
-            key={component.id}
-            sx={{
-              position: "absolute",
-              left: component.style.left,
-              top: component.style.top,
-              width: component.style.width,
-              height: component.style.height,
-              borderRadius: "50%",
-              backgroundColor: component.style.fillColor,
-              opacity: component.style.opacity / 100 || "1",
-              "@media (max-width: 700px)": {
-                width: "60%",
-                height: "auto",
-                left: "20%",
-              },
-            }}
-          >
-            <img
-              src={component.src}
-              alt="image component"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "50%",
-              }}
-            />
-          </Box>
-        );
-      case "rect":
-        return (
-          <Box
-            key={component.id}
-            sx={{
-              position: "absolute",
-              left: component.style.left,
-              top: component.style.top,
-              width: component.style.width,
-              height: component.style.height,
-              backgroundColor: component.style.fillColor || "#ccc",
-              borderRadius: component.style.borderRadius || "0%",
-              opacity: component.style.opacity / 100 || "1",
-              "@media (max-width: 700px)": {
-                width: "90%",
-                left: "5%",
-              },
-            }}
-          />
-        );
-      case "image":
-        return (
-          <Box
-            key={component.id}
-            sx={{
-              position: "absolute",
-              left: component.style.left,
-              top: component.style.top,
-              width: component.style.width,
-              height: component.style.height,
-              overflow: "hidden",
-              borderRadius: component.style.borderRadius || "0%",
-              opacity: component.style.opacity / 100 || "1",
-              "@media (max-width: 700px)": {
-                width: "100%",
-                height: "auto",
-              },
-            }}
-          >
-            <img
-              src={component.src}
-              alt="image component"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-              }}
-            />
-          </Box>
-        );
-      case "line":
-        return (
-          <Box
-            key={component.id}
-            sx={{
-              position: "absolute",
-              left: component.style.left,
-              top: component.style.top,
-              width: component.style.width,
-              height: component.style.height || 5,
-              backgroundColor: component.style.lineColor,
-              opacity: component.style.opacity / 100 || 1,
-              "@media (max-width: 700px)": {
-                width: "90%",
-                left: "5%",
-              },
-            }}
-          />
-        );
-      default:
-        return null;
+  const fetchTemplateData = async () => {
+    try {
+      const template = await getTemplateById(id);
+      setTemplateData(template.data);
+      setSections(
+        template.data.sections
+          .map((section) => ({
+            ...section,
+            components: section.metadata?.components || [],
+            style: section.metadata?.style || {},
+          }))
+          .sort((a, b) => parseInt(a.position) - parseInt(b.position))
+      );
+    } catch (error) {
+      console.error("Error fetching template data:", error);
     }
   };
 
-  if (loading) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <Typography variant="h6">Loading template...</Typography>
-      </Box>
-    );
-  }
+  const updateScale = () => {
+    const canvas = document.getElementById("canvas");
+    if (canvas) {
+      const { offsetWidth, offsetHeight } = canvas;
+      const scaleWidth = window.innerWidth / offsetWidth;
+      const scaleHeight = window.innerHeight / offsetHeight;
+      setScale(Math.min(scaleWidth, scaleHeight));
+    }
+  };
 
-  if (!template) {
-    return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <Typography variant="h6">Template not found.</Typography>
-      </Box>
-    );
-  }
+  useEffect(() => {
+    fetchTemplateData();
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, [id]);
+
+  const handleWheel = (event) => {
+    event.preventDefault();
+    setScale((prevScale) => {
+      const delta = event.deltaY > 0 ? -0.1 : 0.1;
+      return Math.min(Math.max(prevScale + delta, 0.5), 3);
+    });
+  };
+
+  const handleMouseDown = (event) => {
+    if (!event.shiftKey) return;
+    isPanning.current = true;
+    startPoint.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const handleMouseMove = (event) => {
+    if (!isPanning.current) return;
+    const dx = event.clientX - startPoint.current.x;
+    const dy = event.clientY - startPoint.current.y;
+    setTranslate((prev) => ({ x: prev.x + dx, y: prev.y + dy }));
+    startPoint.current = { x: event.clientX, y: event.clientY };
+  };
+
+  const handleMouseUp = () => {
+    isPanning.current = false;
+  };
 
   return (
-    <Box
-      sx={{
-        padding: 2,
-        "@media (max-width: 700px)": {
-          padding: 1,
-        },
-      }}
-    >
-      <Typography
-        variant="h4"
-        gutterBottom
+    <DndProvider backend={HTML5Backend}>
+      <Box
         sx={{
-          textAlign: "center",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          height: "100vh",
+          backgroundColor: "#FCFCFC",
           "@media (max-width: 700px)": {
-            fontSize: "20px",
+            marginTop: "60px",
+            height: "auto",
+            flexDirection: "column",
           },
         }}
       >
-        View Template: {template.name || "Untitled"}
-      </Typography>
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          <Typography variant="h6">Description</Typography>
-          <Typography>
-            {template.description || "No description provided."}
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h6">Sections</Typography>
-          {template.sections && template.sections.length > 0 ? (
-            [...template.sections]
-              .sort((a, b) => parseInt(a.position) - parseInt(b.position))
-              .map((section) => (
-                <Box
-                  key={section.id}
-                  sx={{
-                    position: section.metadata?.style.position,
-                    border: section.metadata?.style.border,
-                    padding: section.metadata?.style.padding,
-                    minHeight: section.metadata?.style.minHeight,
-                    marginBottom: section.metadata?.style.marginBottom,
-                    width: section.metadata?.style.minWidth,
-                    backgroundColor: section.metadata?.style.backgroundColor,
-                    "@media (max-width: 700px)": {
-                      padding: "10px",
-                      width: "100%",
-                      height: "auto",
-                      marginBottom: "10px",
-                    },
-                  }}
-                >
-                  {/* Render the components inside the section */}
-                  {section.metadata?.components?.map(renderComponent)}
-                </Box>
-              ))
-          ) : (
-            <Typography>No sections available.</Typography>
-          )}
-        </Grid>
-      </Grid>
-      <Box sx={{ marginTop: 2 }}>
-        <Button
-          variant="contained"
-          onClick={handleBack}
+        <Headerv2
           sx={{
+            position: "absolute !important",
+            top: 0,
+            zIndex: 1000,
+          }}
+        />
+        <Box
+          sx={{
+            display: "flex",
+            height: "100%",
+            overflow: "hidden",
+            flexDirection: "row",
             "@media (max-width: 700px)": {
-              width: "100%",
+              flexDirection: "column",
+              overflow: "auto",
             },
           }}
         >
-          Back to Template Management
-        </Button>
+          <Box
+            id="canvas"
+            onWheel={handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            sx={{
+              flex: 1,
+              position: "relative",
+              cursor: isPanning.current ? "grabbing" : "grab",
+              backgroundColor: "#FCFCFC",
+              "@media (max-width: 700px)": {
+                overflow: "auto",
+              },
+            }}
+          >
+            <Box
+              sx={{
+                transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
+                transformOrigin: "top left",
+                transition: isPanning.current
+                  ? "none"
+                  : "transform 0.2s ease-out",
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                position: "relative",
+              }}
+            >
+              <Box
+                sx={{
+                  width: "var(--canvas-width, 800px)",
+                  height: "600px",
+                  position: "relative",
+                  "@media (max-width: 700px)": {
+                    width: "100%",
+                    height: "auto",
+                  },
+                }}
+              >
+                <Canvas sections={sections} isViewMode={true} />
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+        {isLoading && (
+          <CircularProgress
+            sx={{ position: "absolute", top: "50%", left: "50%" }}
+          />
+        )}
+        <Snackbar open={false} autoHideDuration={3000} onClose={() => {}}>
+          <Alert severity="error">Error loading template!</Alert>
+        </Snackbar>
       </Box>
-    </Box>
+    </DndProvider>
   );
 };
 

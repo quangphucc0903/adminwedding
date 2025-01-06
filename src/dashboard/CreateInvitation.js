@@ -5,7 +5,7 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import Canvas from "../dashboard/components/invitation/Canvas";
 import Toolbar from "./components/invitation/ToolBar";
 import Headerv2 from "../dashboard/components/invitation/Headerv2";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import LayerList from "../dashboard/components/invitation/LayerList";
 import {
   createInvitation,
@@ -24,6 +24,7 @@ const CreateInvitation = () => {
   const isPanning = useRef(false);
   const startPoint = useRef({ x: 0, y: 0 });
   const [selectedItem, setSelectedItem] = useState("");
+  const navigate = useNavigate();
   const [invitationData, setInvitationData] = useState({
     title: "",
     templateId: id,
@@ -69,25 +70,25 @@ const CreateInvitation = () => {
         prevSections.map((section) =>
           section.id === activeItem.sectionId
             ? {
-              ...section,
-              components: section.components.map((component) => {
-                if (component.id === activeItem.componentId) {
-                  // Lấy ID hiện tại
-                  let currentId = component.id;
+                ...section,
+                components: section.components.map((component) => {
+                  if (component.id === activeItem.componentId) {
+                    // Lấy ID hiện tại
+                    let currentId = component.id;
 
-                  // Xóa ký tự cuối cho đến khi gặp số
-                  while (currentId && isNaN(Number(currentId.slice(-1)))) {
-                    currentId = currentId.slice(0, -1);
+                    // Xóa ký tự cuối cho đến khi gặp số
+                    while (currentId && isNaN(Number(currentId.slice(-1)))) {
+                      currentId = currentId.slice(0, -1);
+                    }
+
+                    // Thêm giá trị mới vào đuôi ID
+                    const updatedId = `${currentId}-${value}`;
+
+                    return { ...component, id: updatedId };
                   }
-
-                  // Thêm giá trị mới vào đuôi ID
-                  const updatedId = `${currentId}-${value}`;
-
-                  return { ...component, id: updatedId };
-                }
-                return component;
-              }),
-            }
+                  return component;
+                }),
+              }
             : section
         )
       );
@@ -97,6 +98,7 @@ const CreateInvitation = () => {
   const fetchInvitationData = async () => {
     try {
       const response = await getTemplateById(id);
+      console.log("Template data:", response?.data.invitation);
       if (response?.data) {
         const data = response.data;
 
@@ -158,10 +160,8 @@ const CreateInvitation = () => {
     position: "1",
     components: [],
     style: {
-      width: "100%",
       minWidth: "500px",
       minHeight: "800px",
-      padding: "10px",
       backgroundColor: "#f9f9f9",
       border: "1px solid #ddd",
       position: "relative",
@@ -214,6 +214,7 @@ const CreateInvitation = () => {
         console.log("Invitation created successfully:", savedInvitation);
         showSnackbar("Invitation created successfully!", "success");
         setExistingInvitation(true);
+        navigate(`/template`);
       }
     } catch (error) {
       console.error("Error saving invitation:", error);
@@ -304,23 +305,26 @@ const CreateInvitation = () => {
       <Box
         sx={{
           display: "flex",
-          flexDirection: "column",
-          height: "100vh",
+          width: "100%",
+          height: "100%",
+          flexDirection: "column",   
           backgroundColor: "#FCFCFC",
         }}
       >
+        <Headerv2
+          sx={{
+            position: "absolute !important",
+            top: 0,
+            zIndex: 1000,
+          }}
+        />
         <Box
           sx={{
-            position: "fixed",
-            top: 0,
-            width: "87%",
-            zIndex: 1000,
-            backgroundColor: "#FCFCFC",
+            display: "flex",
+            overflow: "hidden",
+            flexDirection: "row",
           }}
         >
-          <Headerv2 />
-        </Box>
-        <Box sx={{ display: "flex", height: "100%", overflow: "hidden" }}>
           <LayerList sections={sections} onUpdateSections={setSections} />
           <Box
             id="canvas"
@@ -338,8 +342,6 @@ const CreateInvitation = () => {
           >
             <Box
               sx={{
-                width: "100%",
-                height: "100%",
                 transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
                 transformOrigin: "center",
                 transition: isPanning.current

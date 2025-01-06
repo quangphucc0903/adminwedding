@@ -10,7 +10,7 @@ import {
   MenuItem,
 } from "@mui/material";
 import DropdownMenu from "./DropdownId";
-
+import fonts from "../../../utils/fonts";
 const StyleInput = ({
   label,
   value,
@@ -126,11 +126,7 @@ const StyleEditor = ({
         <Typography variant="subtitle2" sx={{ fontWeight: 500, mt: 2 }}>
           Select Component ID
         </Typography>
-        <DropdownMenu
-          selectedItem={selectedItem}
-          onChange={onChange}
-        />
-
+        <DropdownMenu selectedItem={selectedItem} onChange={onChange} />
 
         <Typography variant="subtitle2" sx={{ fontWeight: 500, mt: 2 }}>
           Font Size
@@ -152,14 +148,9 @@ const StyleEditor = ({
           value={activeStyles.fontFamily}
           onChange={(value) => handleStyleChange("fontFamily", value)}
           type="select"
-          options={[
-            "Arial",
-            "Courier New",
-            "Georgia",
-            "Times New Roman",
-            "Verdana",
-          ]}
+          options={fonts.map((font) => font.family)}
         />
+
 
         <Typography variant="subtitle2" sx={{ fontWeight: 500, mt: 2 }}>
           Color
@@ -192,6 +183,7 @@ const StyleEditor = ({
           type="number"
           unit="px"
           min={0}
+          step={1}
           max={1000}
         />
         <Typography variant="subtitle2" sx={{ fontWeight: 500, mt: 2 }}>

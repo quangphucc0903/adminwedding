@@ -175,10 +175,7 @@ const SignUp = (props) => {
           </Box>
           <Typography sx={{ mt: 2, textAlign: "center" }}>
             Bạn đã có tài khoản?{" "}
-            <Link
-              onClick={() => navigate("/sign-in")}
-              sx={{ cursor: "pointer" }}
-            >
+            <Link onClick={() => navigate("/")} sx={{ cursor: "pointer" }}>
               Đăng nhập
             </Link>
           </Typography>

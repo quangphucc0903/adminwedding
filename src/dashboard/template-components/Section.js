@@ -12,6 +12,7 @@ const Section = ({
   sections,
   setActiveStyles,
   selectedItem,
+  isViewMode,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [guides, setGuides] = useState({
@@ -25,6 +26,7 @@ const Section = ({
   const [, dropRef] = useDrop(() => ({
     accept: "component",
     drop: (item, monitor) => {
+      if (isViewMode) return; // Không cho phép thả khi isViewMode là true
       const offset = monitor.getClientOffset();
       const dropPosition = {
         left: offset.x - monitor.getSourceClientOffset().x,
@@ -295,6 +297,7 @@ const Section = ({
           setActiveStyles={() => setActiveStyles(component.style)}
           handleDelete={() => handleDeleteComponent(component.id)}
           setGuides={setGuides}
+          isViewMode={isViewMode} // Truyền prop isViewMode
         />
       ))}
       {section.responsive === "responsive_section" && (
