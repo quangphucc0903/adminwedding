@@ -46,7 +46,7 @@ AdminAPI.interceptors.request.use(
   }
 );
 
-export const getAllTemplates = async (page = 1, limit = 12) => {
+export const getAllTemplates = async (page, limit) => {
   try {
     const response = await AdminAPI.get(
       `/templates?page=${page}&limit=${limit}`

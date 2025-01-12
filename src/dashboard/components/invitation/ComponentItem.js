@@ -187,6 +187,7 @@ const ComponentItem = ({
             <TextField
               fullWidth
               multiline
+              autoFocus
               variant="outlined"
               value={newText}
               onChange={(e) => setNewText(e.target.value)}

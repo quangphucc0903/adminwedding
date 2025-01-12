@@ -18,6 +18,7 @@ const Canvas = ({
         // padding: 2,
         minHeight: "80vh",
         backgroundColor: "#fff",
+        userSelect: "none",
       }}
     >
       {sections.map((section, index) => (

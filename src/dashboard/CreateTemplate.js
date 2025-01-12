@@ -33,7 +33,6 @@ const CreateTemplate = () => {
   });
 
   const [selectedItem, setSelectedItem] = useState(""); // State để lưu giá trị của dropdown
-
   const handleDropdownChange = (value) => {
     setSelectedItem(value); // Cập nhật giá trị khi dropdown thay đổi
     if (activeItem) {
@@ -42,21 +41,38 @@ const CreateTemplate = () => {
         prevSections.map((section) =>
           section.id === activeItem.sectionId
             ? {
-                ...section,
-                components: section.components.map((component) =>
-                  component.id === activeItem.componentId
-                    ? {
-                        ...component,
-                        id: `${component.id}-${value}`, // Thêm selectedItem vào ID của component
-                      }
-                    : component
-                ),
-              }
+              ...section,
+              components: section.components.map((component) => {
+                // Kiểm tra ID và xử lý
+                let updatedId = component.id;
+
+                // Đảm bảo updatedId là chuỗi
+                if (typeof updatedId !== 'string') {
+                  updatedId = String(updatedId); // Nếu không phải chuỗi, chuyển thành chuỗi
+                }
+
+                // Kiểm tra nếu ID không bắt đầu bằng số, xóa các ký tự trước số
+                if (isNaN(parseInt(updatedId[0]))) {
+                  updatedId = updatedId.replace(/^[^\d]*/, ''); // Xóa tất cả ký tự không phải số phía trước
+                }
+
+                // Thêm selectedItem vào ID của component
+                updatedId = `${updatedId}-${value}`;
+
+                return component.id === activeItem.componentId
+                  ? {
+                    ...component,
+                    id: updatedId,
+                  }
+                  : component;
+              }),
+            }
             : section
         )
       );
     }
   };
+
   const isPanning = useRef(false);
   const startPoint = useRef({ x: 0, y: 0 });
 
@@ -106,7 +122,6 @@ const CreateTemplate = () => {
       showSnackbar("Lưu template và sections thành công!", "success");
       setTimeout(() => navigate("/template"), 1000); // Chuyển hướng sau 1s
     } catch (error) {
-      console.error("Lỗi khi lưu template và sections:", error);
       showSnackbar(error.message || "Lưu thất bại!", "error");
     } finally {
       setIsLoading(false); // Tắt loading
@@ -168,12 +183,12 @@ const CreateTemplate = () => {
       components: [],
       style: {
         width: "100%",
-        minWidth: "800px",
+        minWidth: "500px",
         height: "100%",
         padding: 0,
         position: "relative",
         marginBottom: 2,
-        minHeight: "500px",
+        minHeight: "800px",
         backgroundColor: "#f9f9f9",
         transition: "border 0.3s ease",
       },
@@ -293,7 +308,7 @@ const CreateTemplate = () => {
               }}
             >
               <Box
-                sx={{ width: "800px", height: "600px", position: "relative" }}
+                sx={{ width: "500px", height: "800px", position: "relative" }}
               >
                 <Canvas
                   sections={sections}

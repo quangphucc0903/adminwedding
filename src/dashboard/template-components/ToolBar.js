@@ -55,8 +55,6 @@ const Toolbar = ({
     }));
   };
 
-
-
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     setTemplateData((prevData) => ({
@@ -137,8 +135,8 @@ const Toolbar = ({
               select
               label="Subscription Plan"
               value={templateData.subscriptionPlanId || ""} // Sử dụng subscriptionPlanId
-              onChange={(e) =>
-                handleInputChange("subscriptionPlanId", e.target.value) // Lưu subscriptionPlanId
+              onChange={
+                (e) => handleInputChange("subscriptionPlanId", e.target.value) // Lưu subscriptionPlanId
               }
               margin="normal"
             >
@@ -152,7 +150,6 @@ const Toolbar = ({
                 <MenuItem disabled>No subscriptions available</MenuItem>
               )}
             </TextField>
-
 
             {/* Trường upload ảnh thumbnail */}
             <Box sx={{ marginTop: "16px" }}>
@@ -187,7 +184,6 @@ const Toolbar = ({
                   )}
                 </Box>
               )}
-
             </Box>
           </Box>
         )}

@@ -122,7 +122,7 @@ const ComponentItem = ({
           alignItems: "center",
           justifyContent: "center",
           cursor: isViewMode ? "default" : "move",
-          padding: 1,
+          padding: 0,
           transition: component.type === "diamond" ? "" : "border 0.3s ease",
           borderRadius:
             component.type === "circle" ? "50%" : component.style.borderRadius,
@@ -189,6 +189,7 @@ const ComponentItem = ({
           <DialogTitle>Edit Text</DialogTitle>
           <DialogContent>
             <TextField
+              autoFocus
               fullWidth
               multiline
               variant="outlined"

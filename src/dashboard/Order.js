@@ -10,6 +10,10 @@ const Order = () => {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [limit] = useState(10);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: limit,
+    page: 0,
+  });
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -73,13 +77,15 @@ const Order = () => {
         <DataGrid
           rows={orders}
           columns={columns}
-          pageSize={limit}
-          disableSelectionOnClick
+          paginationModel={paginationModel}
+          onPaginationModelChange={(newModel) => {
+            setPaginationModel(newModel);
+            setPage(newModel.page + 1);
+          }}
           getRowId={(row) => row?.id}
           loading={loading}
-          onPageChange={(newPage) => setPage(newPage + 1)}
-          pagination
-          page={page - 1}
+          pageSizeOptions={[limit]}
+          paginationMode="server"
           rowCount={total}
         />
       </Box>

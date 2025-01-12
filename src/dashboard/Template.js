@@ -3,7 +3,6 @@ import {
   Typography,
   Button,
   Box,
-  Divider,
   IconButton,
   Tooltip,
 } from "@mui/material";
@@ -20,7 +19,6 @@ import {
   duplicateTemplate,
   getSectionsByTemplateId,
   createSectionDuplicate,
-  deleteInvitation,
 } from "../service/templateService";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -29,11 +27,19 @@ import Header from "./components/Header";
 const TemplateManagement = () => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [limit] = useState(10);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: limit,
+    page: 0,
+  });
+
+  const navigate = useNavigate();
 
   const fetchTemplates = async () => {
     try {
-      const response = await getAllTemplates(1);
+      const response = await getAllTemplates(page, limit);
       const processedData = response.data.map((template) => ({
         ...template,
         subscriptionPlan: template.subscriptionPlan || {
@@ -44,6 +50,7 @@ const TemplateManagement = () => {
         },
       }));
       setTemplates(processedData);
+      setTotal(response?.total);
     } catch (error) {
       console.error("Error fetching templates:", error);
     } finally {
@@ -52,7 +59,7 @@ const TemplateManagement = () => {
   };
   useEffect(() => {
     fetchTemplates();
-  }, []);
+  }, [page, limit]);
 
   const handleEdit = (id) => {
     navigate(`/edit-template/${id}`);
@@ -332,12 +339,18 @@ const TemplateManagement = () => {
         </Box>
         <Box sx={{ height: 500 }}>
           <DataGrid
-            rows={templates || []}
+            rows={templates}
             columns={columns}
-            pageSize={5}
-            rowsPerPageOptions={[5, 10, 20]}
-            disableSelectionOnClick
-            getRowId={(row) => row.id}
+            getRowId={(row) => row?.id}
+            paginationModel={paginationModel}
+            onPaginationModelChange={(newModel) => {
+              setPaginationModel(newModel);
+              setPage(newModel.page + 1);
+            }}
+            pageSizeOptions={[limit]}
+            rowCount={total}
+            paginationMode="server"
+            loading={loading}
           />
         </Box>
       </Box>

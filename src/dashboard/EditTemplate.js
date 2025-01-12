@@ -47,7 +47,7 @@ const EditTemplate = () => {
 
       setTemplateData({
         ...template.data,
-        subscriptionPlanId: template.data.subscriptionPlan?.id || "", 
+        subscriptionPlanId: template.data.subscriptionPlan?.id || "",
       });
 
       setSections(
@@ -64,7 +64,6 @@ const EditTemplate = () => {
       showSnackbar("Failed to load template data!", "error");
     }
   };
-
 
   useEffect(() => {
     fetchTemplateData();
@@ -95,7 +94,9 @@ const EditTemplate = () => {
           subscriptionPlanId,
           metaData: JSON.stringify(templateData.metaData), // Nếu metaData là object
         },
-        templateData.thumbnailUrl instanceof File ? templateData.thumbnailUrl : null // Chỉ gửi file nếu có
+        templateData.thumbnailUrl instanceof File
+          ? templateData.thumbnailUrl
+          : null // Chỉ gửi file nếu có
       );
 
       console.log("Save Template", saveTemplate);
@@ -115,17 +116,11 @@ const EditTemplate = () => {
       setTimeout(() => navigate("/template"), 1000); // Chuyển hướng sau 1s
     } catch (error) {
       console.error("Error saving template:", error);
-      showSnackbar(
-        error.message || "Failed to save template!",
-        "error"
-      );
+      showSnackbar(error.message || "Failed to save template!", "error");
     } finally {
       setIsLoading(false); // Tắt trạng thái loading
     }
   };
-
-
-
 
   const handleStyleChange = (key, value) => {
     if (!activeItem) return;
@@ -285,7 +280,7 @@ const EditTemplate = () => {
               }}
             >
               <Box
-                sx={{ width: "800px", height: "600px", position: "relative" }}
+                sx={{ width: "500px", height: "800px", position: "relative" }}
               >
                 <Canvas
                   sections={sections}
@@ -304,7 +299,7 @@ const EditTemplate = () => {
             setTemplateData={setTemplateData}
             selectedItem={selectedItem}
             onDropdownChange={handleDropdownChange}
-            subscriptionPlan={templateData.subscriptionPlan} 
+            subscriptionPlan={templateData.subscriptionPlan}
           />
         </Box>
         <Box
